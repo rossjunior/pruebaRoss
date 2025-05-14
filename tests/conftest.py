@@ -5,7 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
-from app.core.security import JWTBearer
+from app.core.security import JWTBearer, crear_token
 
 
 # Mock JWTBearer dependency for testing
@@ -18,3 +18,8 @@ app.dependency_overrides[JWTBearer] = mock_jwt_bearer
 def client():
     with TestClient(app) as c:
         yield c
+
+@pytest.fixture(scope="module")
+def auth_header():
+    token = crear_token("admin")
+    return {"Authorization": f"Bearer {token}"}
