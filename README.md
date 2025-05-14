@@ -36,6 +36,10 @@ python -m app.db.seed
 uvicorn app.main:app --reload
 
 Swagger UI: http://localhost:8000/docs
+
+## Usuario para generación de token
+user: admin
+pass: admin123
 ```
 ## Para ejecutarlo mediante docker
 
