@@ -24,6 +24,7 @@ class ZonaOut(BaseModel):
     nombre_zona: str
     tipo_proceso: TipoProcesoOut
     departamento: DepartamentoOut
+    geom: dict
     class Config:
         orm_mode = True
 

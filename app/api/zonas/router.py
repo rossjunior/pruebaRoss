@@ -1,19 +1,34 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from shapely import wkt
 from geoalchemy2.shape import from_shape
+
+from app.api.departamentos.schemas import DepartamentoOut
+from app.api.tipos_proceso.schemas import TipoProcesoOut
 from app.db.database import get_db
 from app.models import models
 from app.api.zonas.schemas import ZonaBase, ZonaOut, ZonaListResponse
 from app.core.security import JWTBearer
-from sqlalchemy import desc, asc
+from sqlalchemy import desc, asc, func
+import json
 
 router = APIRouter()
 
 @router.get("/", response_model=ZonaListResponse, dependencies=[Depends(JWTBearer())])
-def listar_zonas(tipo_proceso: str = None, departamento: str = None, skip: int = 0, limit: int = 10,
-                 order_by: str = "id", order_dir: str = "asc", db: Session = Depends(get_db)):
-    query = db.query(models.ZonaDeforestada)
+def listar_zonas(
+    tipo_proceso: str = None,
+    departamento: str = None,
+    skip: int = 0,
+    limit: int = 10,
+    order_by: str = "id",
+    order_dir: str = "asc",
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.ZonaDeforestada).options(
+        joinedload(models.ZonaDeforestada.tipo_proceso),
+        joinedload(models.ZonaDeforestada.departamento)
+    )
+
     if tipo_proceso:
         query = query.join(models.TipoProceso).filter(models.TipoProceso.nombre == tipo_proceso)
     if departamento:
@@ -21,12 +36,33 @@ def listar_zonas(tipo_proceso: str = None, departamento: str = None, skip: int =
 
     total = query.count()
 
+    # Ordenamiento dinámico
     order_attr = getattr(models.ZonaDeforestada, order_by, None)
     if order_attr:
         direction = desc(order_attr) if order_dir == "desc" else asc(order_attr)
         query = query.order_by(direction)
 
-    items = query.offset(skip).limit(limit).all()
+    zonas = query.offset(skip).limit(limit).all()
+
+    # Convertir geometría a GeoJSON
+    items = []
+    for zona in zonas:
+        geom_geojson = db.scalar(func.ST_AsGeoJSON(zona.geometry))
+        zona_out = ZonaOut(
+            id=zona.id,
+            nombre_zona=zona.nombre_zona,
+            geom=json.loads(geom_geojson),
+            tipo_proceso=TipoProcesoOut(
+                id=zona.tipo_proceso.id,
+                nombre=zona.tipo_proceso.nombre
+            ).model_dump(),
+            departamento=DepartamentoOut(
+                id=zona.departamento.id,
+                nombre=zona.departamento.nombre
+            ).model_dump()
+        )
+        items.append(zona_out)
+
     return {"total": total, "items": items}
 
 
@@ -64,10 +100,14 @@ def crear_zona(zona: ZonaBase, db: Session = Depends(get_db)):
 @router.get("/{zona_id}", response_model=ZonaOut, dependencies=[Depends(JWTBearer())])
 def obtener_zona(zona_id: int, db: Session = Depends(get_db)):
     zona = db.query(models.ZonaDeforestada).filter_by(id=zona_id).first()
+
     if not zona:
         raise HTTPException(status_code=404, detail="Zona no encontrada")
-    return zona
 
+    geom_geojson = db.scalar(func.ST_AsGeoJSON(zona.geometry))
+    zona.geom = json.loads(geom_geojson)
+
+    return zona
 
 @router.put("/{zona_id}", response_model=ZonaOut, dependencies=[Depends(JWTBearer())])
 def actualizar_zona(zona_id: int, zona: ZonaBase, db: Session = Depends(get_db)):

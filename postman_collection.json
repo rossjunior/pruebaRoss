@@ -1,0 +1,674 @@
+{
+	"info": {
+		"_postman_id": "7e8f9a10-b2c3-4d5e-6f7g-8h9i0j1k2l3m",
+		"name": "API Zonas Deforestadas",
+		"description": "Colección para probar la API de Zonas Deforestadas",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"token\", jsonData.access_token);",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Token received\", function () {",
+									"    pm.expect(jsonData.access_token).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Obtiene un token JWT para autenticación"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de autenticación"
+		},
+		{
+			"name": "Zonas Deforestadas",
+			"item": [
+				{
+					"name": "Listar Zonas",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/zonas-deforestadas/?skip=0&limit=10&order_by=id&order_dir=asc&tipo_proceso=&departamento=",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"zonas-deforestadas",
+								""
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0",
+									"description": "Número de registros a omitir (paginación)"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Número máximo de registros a devolver"
+								},
+								{
+									"key": "order_by",
+									"value": "id",
+									"description": "Campo por el cual ordenar"
+								},
+								{
+									"key": "order_dir",
+									"value": "asc",
+									"description": "Dirección de ordenamiento (asc o desc)"
+								},
+								{
+									"key": "tipo_proceso",
+									"value": "",
+									"description": "Filtrar por tipo de proceso"
+								},
+								{
+									"key": "departamento",
+									"value": "",
+									"description": "Filtrar por departamento"
+								}
+							]
+						},
+						"description": "Obtiene la lista de zonas deforestadas con paginación y filtros opcionales"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Zona por ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/zonas-deforestadas/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"zonas-deforestadas",
+								"1"
+							]
+						},
+						"description": "Obtiene una zona deforestada específica por su ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Zona",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre_zona\": \"Zona Test Postman\",\n    \"tipo_proceso\": \"Preventivo\",\n    \"departamento\": \"Amazonas\",\n    \"geom\": \"POLYGON((-74.1 4.5, -74.2 4.5, -74.2 4.6, -74.1 4.6, -74.1 4.5))\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/zonas-deforestadas/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"zonas-deforestadas",
+								""
+							]
+						},
+						"description": "Crea una nueva zona deforestada"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Zona",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre_zona\": \"Zona Actualizada\",\n    \"tipo_proceso\": \"Correctivo\",\n    \"departamento\": \"Amazonas\",\n    \"geom\": \"POLYGON((-74.1 4.5, -74.2 4.5, -74.2 4.6, -74.1 4.6, -74.1 4.5))\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/zonas-deforestadas/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"zonas-deforestadas",
+								"1"
+							]
+						},
+						"description": "Actualiza una zona deforestada existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Zona",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/zonas-deforestadas/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"zonas-deforestadas",
+								"1"
+							]
+						},
+						"description": "Elimina una zona deforestada"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para gestionar zonas deforestadas"
+		},
+		{
+			"name": "Departamentos",
+			"item": [
+				{
+					"name": "Listar Departamentos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/departamentos/?skip=0&limit=10&order_by=id&order_dir=asc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"departamentos",
+								""
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "order_by",
+									"value": "id"
+								},
+								{
+									"key": "order_dir",
+									"value": "asc"
+								}
+							]
+						},
+						"description": "Obtiene la lista de departamentos con paginación"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Departamento por ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/departamentos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"departamentos",
+								"1"
+							]
+						},
+						"description": "Obtiene un departamento específico por su ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Departamento",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Nuevo Departamento\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/departamentos/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"departamentos",
+								""
+							]
+						},
+						"description": "Crea un nuevo departamento"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Departamento",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Departamento Actualizado\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/departamentos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"departamentos",
+								"1"
+							]
+						},
+						"description": "Actualiza un departamento existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Departamento",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/departamentos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"departamentos",
+								"1"
+							]
+						},
+						"description": "Elimina un departamento"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para gestionar departamentos"
+		},
+		{
+			"name": "Tipos de Proceso",
+			"item": [
+				{
+					"name": "Listar Tipos de Proceso",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tipos_proceso/?skip=0&limit=10&order_by=id&order_dir=asc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tipos_proceso",
+								""
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "order_by",
+									"value": "id"
+								},
+								{
+									"key": "order_dir",
+									"value": "asc"
+								}
+							]
+						},
+						"description": "Obtiene la lista de tipos de proceso con paginación"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Tipo de Proceso por ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tipos_proceso/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tipos_proceso",
+								"1"
+							]
+						},
+						"description": "Obtiene un tipo de proceso específico por su ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Tipo de Proceso",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Nuevo Tipo de Proceso\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/tipos_proceso/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tipos_proceso",
+								""
+							]
+						},
+						"description": "Crea un nuevo tipo de proceso"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Tipo de Proceso",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Tipo de Proceso Actualizado\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/tipos_proceso/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tipos_proceso",
+								"1"
+							]
+						},
+						"description": "Actualiza un tipo de proceso existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Tipo de Proceso",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tipos_proceso/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tipos_proceso",
+								"1"
+							]
+						},
+						"description": "Elimina un tipo de proceso"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para gestionar tipos de proceso"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	]
+}
