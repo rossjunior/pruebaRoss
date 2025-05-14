@@ -2,8 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from app.core.security import crear_token
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
-
+router = APIRouter()
 class LoginData(BaseModel):
     username: str
     password: str  # Por ahora sin hash (solo pruebas)
